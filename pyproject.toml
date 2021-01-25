@@ -5,6 +5,9 @@ description = "Software to analyse the LOC and LOCC for random github repos"
 authors = ["Tim Neumann <neumantm@fius.informatik.uni-stuttgart.de>"]
 license = "MIT"
 
+[tool.poetry.scripts]
+grla = 'github_repo_loc_analyser.main:main'
+
 [tool.poetry.dependencies]
 python = "^3.8"
 requests = "^2.25.1"
