@@ -1,10 +1,9 @@
 """Module for querying the Github API."""
-from typing import List, Dict, Optional
-
 import logging
-import requests
-
 from random import randint
+from typing import List
+
+import requests
 
 from . import CONFIG
 
@@ -13,23 +12,24 @@ logger: logging.Logger = logging.getLogger("gh_api")
 API_SERVER = "https://api.github.com/"
 API_ENDPOINT_REPOS = "search/repositories"
 
-class PossibleRepo():
+
+class PossibleRepo:
     def __init__(self, name, language, commits_url):
-        self.name = name
-        self.language = language
-        self.commits_url = commits_url
+        self._name = name
+        self._language = language
+        self._commits_url = commits_url
 
     def get_name(self):
-        return self.name
+        return self._name
 
     def get_language(self):
-        return self.language
+        return self._language
 
     def get_commits_url(self):
-        return self.commits_url
+        return self._commits_url
 
 
-class ApiQuerier():
+class ApiQuerier:
     """ Class for querying the github api. """
 
     def __init__(self):
