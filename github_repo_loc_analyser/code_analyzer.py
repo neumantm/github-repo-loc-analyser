@@ -10,7 +10,7 @@ from github_repo_loc_analyser.github_api_querier import PossibleRepo
 # TODO: Change print to logging statements
 class Analyzer:
     WORKDIR = "./"
-    CLOCK_EXECUTABLE = "cloc/cloc-1.88.exe"
+    CLOCK_EXECUTABLE = "cloc"
 
     def __init__(self, repo: PossibleRepo, repo_branch="master"):
         self.repo = repo
