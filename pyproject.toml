@@ -12,6 +12,7 @@ grla = 'github_repo_loc_analyser.main:main'
 python = "^3.8"
 requests = "^2.25.1"
 celery = "^5.0.5"
+GitPython = "^3.1.12"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

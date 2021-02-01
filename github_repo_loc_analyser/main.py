@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-from typing import List
-
-from os import environ, path, makedirs
-from json import dump
-import shutil
-
 import argparse
 import logging
 import logging.config
+import shutil
+from os import environ, path, makedirs
+from pprint import pprint
 
 from . import CONFIG
-
 from .github_api_querier import ApiQuerier
+
+
 class EnvDefault(argparse.Action):
     """Argparse action to use the env as fallback."""
 
@@ -50,14 +48,15 @@ def run(config_file: str):
     makedirs(CONFIG["main"]["data_dir"])
 
     api = ApiQuerier()
-    print(str(api.get_repos()))
-
+    pprint(str(api.get_repos()))
 
 
 def main():
     """Run the script."""
-    parser = argparse.ArgumentParser(description='Analyse a random set of repos for their lines of code and lines of comments')
-    parser.add_argument('--config', '-c', metavar='file', action=EnvDefault, envvar='GRLA_CONFIG', required=False, default="./grla.conf",
+    parser = argparse.ArgumentParser(
+        description='Analyse a random set of repos for their lines of code and lines of comments')
+    parser.add_argument('--config', '-c', metavar='file', action=EnvDefault, envvar='GRLA_CONFIG', required=False,
+                        default="./grla.conf",
                         help='The config file to use. Defaults to "./grla.conf". Can also be specified via the environment variable GRLA_CONFIG')
 
     args = parser.parse_args()
