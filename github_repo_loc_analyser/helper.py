@@ -1,11 +1,11 @@
 """Module with some helper methods and classes."""
 
-from typing import Callable, TextIO, Type, Any
-from os import unlink, path, fdopen, fsync, rename
-from tempfile import mkstemp
 from json import JSONEncoder, JSONDecoder
-from unicodedata import normalize
+from os import unlink, path, fdopen, fsync, rename
 from re import sub
+from tempfile import mkstemp
+from typing import Callable, TextIO, Type, Any
+from unicodedata import normalize
 
 from . import CONFIG
 from . import data_structure

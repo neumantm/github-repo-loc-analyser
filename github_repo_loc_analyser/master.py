@@ -1,16 +1,16 @@
 """Module for the logic of the master node."""
 import logging
-
-from typing import List
-from os import path, mkdir
 from json import dump, load
+from os import path, mkdir
+from typing import List
+
 from celery.result import AsyncResult
 
 from . import CONFIG
 from .data_structure import PossibleRepo, Result, Repo
 from .github_api_querier import ApiQuerier
-from .helper import atmoic_write_file, SerializableJsonEncoder
 from .helper import SerializableJsonDecoder, sanitize_filename
+from .helper import atmoic_write_file, SerializableJsonEncoder
 from .tasks import process_possible_repo
 
 logger: logging.Logger = logging.getLogger("master")
@@ -43,7 +43,6 @@ class Master:
         """Get the filepath for the data for the given repo."""
         filename = sanitize_filename(repo.get_name()) + ".json"
         return path.join(self._results_dir, filename)
-
 
     def start(self):
         """Start the master."""
