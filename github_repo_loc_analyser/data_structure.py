@@ -7,7 +7,7 @@ class Serializable:
     """Class which can be serialized."""
 
     def serialize(self) -> Dict:
-        """Return the data reprsenting this class as a dict."""
+        """Return the data representing this class as a dict."""
         return {"_class": type(self).__name__}
 
     @classmethod
