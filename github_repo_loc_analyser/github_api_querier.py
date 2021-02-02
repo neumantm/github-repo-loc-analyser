@@ -6,6 +6,7 @@ from typing import List
 import requests
 
 from . import CONFIG
+from .data_structure import PossibleRepo
 
 logger: logging.Logger = logging.getLogger("gh_api")
 
@@ -13,24 +14,8 @@ API_SERVER = "https://api.github.com/"
 API_ENDPOINT_REPOS = "search/repositories"
 
 
-class PossibleRepo:
-    def __init__(self, name, language, commits_url):
-        self._name = name
-        self._language = language
-        self._commits_url = commits_url
-
-    def get_name(self):
-        return self._name
-
-    def get_language(self):
-        return self._language
-
-    def get_commits_url(self):
-        return self._commits_url
-
-
 class ApiQuerier:
-    """ Class for querying the github api. """
+    """Class for querying the github api."""
 
     def __init__(self):
         logger.debug("Init.")
@@ -84,11 +69,12 @@ class ApiQuerier:
             while index in used_indices:
                 index = randint(0, 29)
             used_indices.append(index)
+            # TODO name in file representation is unique
             logger.debug("Picked index: {}".format(index))
             datum = data["items"][index]
             commits_url = datum["commits_url"]
             commits_url = commits_url.split("{")[0]
-            result.append(PossibleRepo(datum["full_name"], language, commits_url))
+            result.append(PossibleRepo(datum["full_name"], language, old_repo, commits_url))
 
         return result
 
