@@ -7,7 +7,7 @@ from json import dump, load
 from celery.result import AsyncResult
 
 from . import CONFIG
-from .data_structure import PossibleRepo, Result
+from .data_structure import PossibleRepo, Result, Repo
 from .github_api_querier import ApiQuerier
 from .helper import atmoic_write_file, SerializableJsonEncoder
 from .helper import SerializableJsonDecoder, sanitize_filename
@@ -39,6 +39,12 @@ class Master:
         logger.debug("Atomic write repos file...")
         atmoic_write_file(self._repos_file, lambda f: dump(possible_repos, f, indent="  ", cls=SerializableJsonEncoder))
 
+    def get_filepath_for_repo(self, repo: Repo):
+        """Get the filepath for the data for the given repo."""
+        filename = sanitize_filename(repo.get_name()) + ".json"
+        return path.join(self._results_dir, filename)
+
+
     def start(self):
         """Start the master."""
         if not path.exists(self._repos_file):
@@ -48,9 +54,9 @@ class Master:
             repos: List[PossibleRepo] = load(f, cls=SerializableJsonDecoder)
 
         for repo in repos:
-            filename = sanitize_filename(repo.get_name()) + ".json"
-            logger.debug("Looking at repo {}. Filename: {}".format(repo.get_name(), filename))
-            if path.exists(filename):
+            filepath = self.get_filepath_for_repo(repo)
+            logger.debug("Looking at repo {}. Filename: {}".format(repo.get_name(), filepath))
+            if path.exists(filepath):
                 logger.debug("File exists")
                 continue
 
@@ -66,4 +72,8 @@ class Master:
         """Process the result of a process possible repo task"""
         logger.debug("Got some result.")
         analysis_result: Result = result.get()
-        logger.info("Got result for {}".format(analysis_result.get_repo().get_name()))
+        repo = analysis_result.get_repo()
+        logger.info("Got result for {}".format(repo.get_name()))
+        filepath = self.get_filepath_for_repo(repo)
+        logger.debug("Atomically writing result for {}".format(repo.get_name()))
+        atmoic_write_file(filepath, lambda f: dump(analysis_result, f, indent="  ", cls=SerializableJsonEncoder))
