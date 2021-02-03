@@ -3,6 +3,9 @@
 .vscode/
 
 data/
+tmp/
+/github_repo_loc_analyser/repo/
+
 
 # Ignores from Template:
 
