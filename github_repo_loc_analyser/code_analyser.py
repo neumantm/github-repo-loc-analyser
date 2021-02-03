@@ -1,13 +1,12 @@
 import json
 import os
 import subprocess
-from datetime import datetime
 from pprint import pprint
 
 import git
 
 # TODO: Change print to logging statements
-from github_repo_loc_analyser.data_structure import AnalysisRepo
+from github_repo_loc_analyser.data_structure import AnalysisRepo, Result
 
 
 class CodeAnalyzer:
@@ -37,7 +36,7 @@ class CodeAnalyzer:
 
         git_repo.git.checkout("FETCH_HEAD")
 
-    def process_repo(self):
+    def process_repo(self) -> Result:
         print('Begin processing repository ' + self.repo.get_name() + '...')
         if not os.path.exists(self.WORK_DIR + self.repo.get_name()):
             self.shallow_clone_repo()
@@ -57,7 +56,11 @@ class CodeAnalyzer:
                 "Maybe \"" + self.repo.get_language() + "\" is not a valid language identifier. Cloc output is: "
                 + str(cloc_output))
 
-        return output[self.repo.get_language()]
+        return self._generate_output(output)
+
+    def _generate_output(self, cloc_output):
+        cloc_output = cloc_output[self.repo.get_language()]
+        return Result(self.repo, cloc_output)
 
 
 if __name__ == '__main__':
@@ -65,5 +68,5 @@ if __name__ == '__main__':
     test_repo_url = "https://github.com/neumantm/github-repo-loc-analyser.git"
     test_repo = AnalysisRepo("TestRepo", "Python", False, test_repo_url, "4e6dbcfe5e669bce3f80d86edadea8b1da5fdd28")
     analyzer = CodeAnalyzer(test_repo)
-    dict = analyzer.process_repo()
-    pprint(dict)
+    analysis = analyzer.process_repo()
+    pprint(analysis.get_analysis())

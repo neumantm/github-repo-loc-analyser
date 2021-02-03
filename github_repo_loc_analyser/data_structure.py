@@ -105,22 +105,27 @@ class AnalysisRepo(Repo):
 class Result(Serializable):
     """The result of the repo analysis."""
 
-    def __init__(self, repo):
+    def __init__(self, repo, analysis):
         """Init."""
         super().__init__()
         self._repo = repo
+        self._analysis = analysis
 
     def get_repo(self) -> Repo:
         """Return the repo this result is for."""
         return self._repo
 
+    def get_analysis(self) -> dict:
+        return self._analysis
+
     def serialize(self) -> Dict:
         """See overridden."""
         data = super().serialize()
         data["repo"] = self._repo
+        data["analysis"] = self._analysis
         return data
 
     @classmethod
     def deserialize(cls, data: Dict):
         """Return a new object from the given data."""
-        return Result(data["repo"])
+        return Result(data["repo"], data["analysis"])
