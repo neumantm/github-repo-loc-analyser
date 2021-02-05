@@ -5,12 +5,14 @@ from pprint import pprint
 
 import git
 
+from . import CONFIG
+
 # TODO: Change print to logging statements
 from github_repo_loc_analyser.data_structure import AnalysisRepo, Result
 
 
 class CodeAnalyzer:
-    WORK_DIR = "./repo/"
+    WORK_DIR = os.path.join(CONFIG["main"]["tmp_dir"], "repo/")
     CLOCK_EXECUTABLE = "cloc"
 
     def __init__(self, repo: AnalysisRepo):
@@ -19,8 +21,9 @@ class CodeAnalyzer:
     def shallow_clone_repo(self):
         print('Cloning repository ' + self.repo.get_name() + '...')
 
-        if not os.path.exists(self.WORK_DIR):
-            os.makedirs(self.WORK_DIR)
+        if os.path.exists(self.WORK_DIR):
+            os.rmdir(self.WORK_DIR)
+        os.makedirs(self.WORK_DIR)
 
         git_repo = git.Repo.init(self.WORK_DIR, mkdir=True)
         if not git_repo.remotes:
