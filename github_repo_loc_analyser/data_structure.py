@@ -7,7 +7,7 @@ class Serializable:
     """Class which can be serialized."""
 
     def serialize(self) -> Dict:
-        """Return the data reprsenting this class as a dict."""
+        """Return the data representing this class as a dict."""
         return {"_class": type(self).__name__}
 
     @classmethod
@@ -76,25 +76,56 @@ class PossibleRepo(Repo):
         return PossibleRepo(data["name"], data["language"], data["old_repo"], data["commits_url"])
 
 
-class Result(Serializable):
-    """The result of the repo analysis."""
+class AnalysisRepo(Repo):
+    def __init__(self, name: str, language: str, old_repo: bool, remote_url: str, commit: str):
+        """Init"""
+        super().__init__(name, language, old_repo)
+        self._remote_url = remote_url
+        self._commit = commit
 
-    def __init__(self, repo):
-        """Init."""
-        super().__init__()
-        self._repo = repo
+    def get_remote_url(self) -> str:
+        return self._remote_url
 
-    def get_repo(self) -> Repo:
-        """Return the repo this result is for."""
-        return self._repo
+    def get_commit(self) -> str:
+        return self._commit
 
     def serialize(self) -> Dict:
         """See overridden."""
         data = super().serialize()
-        data["repo"] = self._repo
+        data["remote_url"] = self._remote_url
+        data["commit"] = self._commit
         return data
 
     @classmethod
     def deserialize(cls, data: Dict):
         """Return a new object from the given data."""
-        return Result(data["repo"])
+        return AnalysisRepo(data["name"], data["language"], data["old_repo"], data["remote_url"], data["commit"])
+
+
+class Result(Serializable):
+    """The result of the repo analysis."""
+
+    def __init__(self, repo, analysis):
+        """Init."""
+        super().__init__()
+        self._repo = repo
+        self._analysis = analysis
+
+    def get_repo(self) -> Repo:
+        """Return the repo this result is for."""
+        return self._repo
+
+    def get_analysis(self) -> dict:
+        return self._analysis
+
+    def serialize(self) -> Dict:
+        """See overridden."""
+        data = super().serialize()
+        data["repo"] = self._repo
+        data["analysis"] = self._analysis
+        return data
+
+    @classmethod
+    def deserialize(cls, data: Dict):
+        """Return a new object from the given data."""
+        return Result(data["repo"], data["analysis"])

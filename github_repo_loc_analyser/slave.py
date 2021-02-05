@@ -1,6 +1,6 @@
 """Module for the logic in the slave nodes."""
-
-from .data_structure import PossibleRepo, Result
+from .code_analyser import CodeAnalyzer
+from .data_structure import PossibleRepo, Result, AnalysisRepo
 
 
 class Slave:
@@ -12,5 +12,11 @@ class Slave:
 
     def run(self) -> Result:
         """Run the slave logic."""
+
         # TODO: Find commit we want and pass to code_analyzer
-        return Result(self._possible_repo)
+        repo_remote_url = ""  # TODO
+        commit_hash = ""  # TODO
+        repo = AnalysisRepo(self._possible_repo.get_name(), self._possible_repo.get_language(),
+                            self._possible_repo.is_old_repo(), repo_remote_url, commit_hash)
+        analyzer = CodeAnalyzer(repo)
+        return analyzer.process_repo()
