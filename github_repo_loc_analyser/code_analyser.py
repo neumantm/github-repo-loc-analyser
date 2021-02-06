@@ -78,6 +78,6 @@ class CodeAnalyzer:
         if code_lines < CONFIG["main"].getint("minimum_code_lines"):
             txt = "To few code lines ({}) for language {}".format(code_lines, lang)
             logger.info(txt)
-            return Result(self.repo, False, failure_reason=txt)
+            return Result(self.repo, False, failure_reason=txt, analysis=lang_result)
 
         return Result(self.repo, True, analysis=lang_result)
