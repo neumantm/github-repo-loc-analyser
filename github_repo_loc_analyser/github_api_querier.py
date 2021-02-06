@@ -44,6 +44,17 @@ class ApiQuerier:
         self.old_repo_date: int = main.get("old_repo_date")
         self.new_repo_date: int = main.get("new_repo_date")
 
+        if "github_auth" in main:
+            self.auth = main.get("github_auth")
+        else:
+            self.auth = None
+
+    def _build_request_header(self):
+        result = {"Accept": "application/vnd.github.v3+json"}
+        if self.auth is not None:
+            result["Authorization"] = self.auth
+        return result
+
     def _perform_request_with_retry(self, request: requests.PreparedRequest) -> requests.Response:
         retries = 0
         while retries < RATE_LIMIT_RETRIES:
@@ -73,8 +84,7 @@ class ApiQuerier:
             params += "pushed:" + self.new_repo_updated
         params += "&per_page=" + str(REQUESTED_PAGE_SIZE)
         url = API_SERVER + API_ENDPOINT_REPOS
-        headers = {"Accept": "application/vnd.github.v3+json"}
-        return requests.Request('GET', url, params=params, headers=headers)
+        return requests.Request('GET', url, params=params, headers=self._build_request_header())
 
     def _get_next_url(self, resp: requests.Response) -> Optional[str]:
         links = resp.headers["Link"].split(",")
@@ -154,8 +164,7 @@ class ApiQuerier:
             'until': date,  # Only get commits before our cut off date
             'per_page': 1  # We only want the last commit (list is sorted by order of commits) before the date
         }
-        headers = {"Accept": "application/vnd.github.v3+json"}
-        req = requests.Request('GET', url, params=params, headers=headers)
+        req = requests.Request('GET', url, params=params, headers=self._build_request_header())
         logger.info("Getting commit hash for repo {}".format(repo.get_name()))
         resp = self._perform_request_with_retry(req.prepare())
         if not resp.ok:
