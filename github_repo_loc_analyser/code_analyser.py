@@ -63,16 +63,21 @@ class CodeAnalyzer:
              "--json"],  # "--quiet"
             stdout=subprocess.PIPE)
         cloc_output = proc.stdout.read()
+        if len(cloc_output) < 1:
+            txt = "Cloc could not find any data for language {}".format(lang)
+            logger.info(txt)
+            return Result(self.repo, False, failure_reason=txt)
         try:
             output = json.loads(cloc_output)
         except json.decoder.JSONDecodeError as e:
-            raise ValueError(
-                "Output cannot be parsed as json. "
-                "Maybe \"" + lang + "\" is not a valid language identifier. Cloc output is: "
-                + str(cloc_output)) from e
+            raise ValueError("Output cannot be parsed as json. Cloc output is: {}".format(cloc_output)) from e
         logger.debug("Got cloc output:{}".format(output))
-        return self._generate_output(output, lang)
 
-    def _generate_output(self, cloc_output, lang):
-        cloc_output = cloc_output[lang]
-        return Result(self.repo, cloc_output)
+        lang_result = output[lang]
+        code_lines = lang_result["code"]
+        if code_lines < CONFIG["main"].getint("minimum_code_lines"):
+            txt = "To few code lines ({}) for language {}".format(code_lines, lang)
+            logger.info(txt)
+            return Result(self.repo, False, failure_reason=txt)
+
+        return Result(self.repo, True, analysis=lang_result)

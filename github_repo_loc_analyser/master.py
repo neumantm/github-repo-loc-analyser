@@ -68,11 +68,12 @@ class Master:
             item.get()
 
     def process_result(self, result: AsyncResult):
-        """Process the result of a process possible repo task"""
-        logger.debug("Got some result.")
+        """Process the result of a process possible repo task."""
         analysis_result: Result = result.get()
         if analysis_result is None:
+            logger.warn("Got None result. Ignoring")
             return  # Error occurred. Don't save anything
+        logger.debug("Got some result.")
         repo = analysis_result.get_repo()
         logger.info("Got result for {}".format(repo.get_name()))
         filepath = self.get_filepath_for_repo(repo)

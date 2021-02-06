@@ -106,27 +106,37 @@ class AnalysisRepo(Repo):
 class Result(Serializable):
     """The result of the repo analysis."""
 
-    def __init__(self, repo, analysis):
+    def __init__(self, repo, sucess=True, analysis=None, failure_reason=None):
         """Init."""
         super().__init__()
         self._repo = repo
+        self._success = sucess
         self._analysis = analysis
+        self._failure_reason = failure_reason
 
     def get_repo(self) -> Repo:
         """Return the repo this result is for."""
         return self._repo
 
+    def is_success(self) -> bool:
+        return self._success
+
     def get_analysis(self) -> dict:
         return self._analysis
+
+    def failure_reason(self) -> str:
+        return self._failure_reason
 
     def serialize(self) -> Dict:
         """See overridden."""
         data = super().serialize()
         data["repo"] = self._repo
+        data["success"] = self._success
         data["analysis"] = self._analysis
+        data["failure_reason"] = self._failure_reason
         return data
 
     @classmethod
     def deserialize(cls, data: Dict):
         """Return a new object from the given data."""
-        return Result(data["repo"], data["analysis"])
+        return Result(data["repo"], data["success"], data["analysis"], data["failure_reason"])

@@ -99,6 +99,7 @@ class ApiQuerier:
             resp = self._perform_request_with_retry(req.prepare())
             if not resp.ok:
                 logger.error("Result not ok ({}): \n{}".format(resp.status_code, resp.text))
+                continue
 
             if page < self.num_repo_pages - 1:
                 url = self._get_next_url(resp)
@@ -141,7 +142,7 @@ class ApiQuerier:
                 result += self._get_repos(language.strip(), old_repo, results_sanitzed_filenames)
         return result
 
-    def get_commit(self, repo: PossibleRepo) -> str:
+    def get_commit(self, repo: PossibleRepo) -> Optional[str]:
         """Get the hash of the commit to inspect for the given repo."""
         url = repo.get_commits_url()
         date = ""
@@ -159,7 +160,18 @@ class ApiQuerier:
         resp = self._perform_request_with_retry(req.prepare())
         if not resp.ok:
             logger.error("Result not ok ({}): \n{}".format(resp.status_code, resp.text))
+            return None
         data = resp.json()
-        sha = data[0]["sha"]
+        if not isinstance(data, list):
+            logger.error("While getting commit for {}: Data is not a list: {}".format(repo.get_name(), data))
+            return None
+        if len(data) < 1:
+            logger.error("While getting commit for {}: Data is an empty list: {}".format(repo.get_name(), data))
+            return None
+        datum = data[0]
+        if "sha" not in datum:
+            logger.error("While getting commit for {}: Datum has no entry 'sha': {}".format(repo.get_name(), datum))
+            return None
+        sha = datum["sha"]
         logger.debug("Commit: {}".format(sha))
         return sha
