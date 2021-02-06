@@ -41,6 +41,8 @@ class ApiQuerier:
 
         self.num_repos_per_page: int = main.getint("num_repos_per_page")
         self.num_repo_pages: int = main.getint("num_repo_pages")
+        self.old_repo_date: int = main.get("old_repo_date")
+        self.new_repo_date: int = main.get("new_repo_date")
 
     def _perform_request_with_retry(self, request: requests.PreparedRequest) -> requests.Response:
         retries = 0
@@ -124,9 +126,10 @@ class ApiQuerier:
                 used_indices.append(index)
                 results_sanitzed_filenames.append(sanitized_filename)
                 logger.debug("Picked index: {}".format(index))
+                remote_url = datum["clone_url"]
                 commits_url = datum["commits_url"]
                 commits_url = commits_url.split("{")[0]
-                result.append(PossibleRepo(datum["full_name"], language, old_repo, commits_url))
+                result.append(PossibleRepo(datum["full_name"], language, old_repo, remote_url, commits_url))
 
         return result
 
@@ -137,3 +140,24 @@ class ApiQuerier:
             for old_repo in [False, True]:
                 result += self._get_repos(language.strip(), old_repo, results_sanitzed_filenames)
         return result
+
+    def get_commit(self, repo: PossibleRepo) -> str:
+        """Get the hash of the commit to inspect for the given repo."""
+        url = repo.get_commits_url()
+        date = ""
+        if repo.is_old_repo():
+            date = self.old_repo_date
+        else:
+            date = self.new_repo_date
+        params = {
+            'until': date,  # Only get commits before our cut off date
+            'per_page': 1  # We only want the last commit (list is sorted by order of commits) before the date
+        }
+        headers = {"Accept": "application/vnd.github.v3+json"}
+        req = requests.Request('GET', url, params=params, headers=headers)
+        logger.info("Getting commit hash for repo {}".format(repo.get_name()))
+        resp = self._perform_request_with_retry(req.prepare())
+        if not resp.ok:
+            logger.error("Result not ok ({}): \n{}".format(resp.status_code, resp.text))
+        data = resp.json()
+        return data[0]["sha"]
