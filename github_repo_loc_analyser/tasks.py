@@ -1,7 +1,7 @@
 """Module for the celery tasks."""
-
+import logging
 from json import dumps, loads
-
+from typing import Optional
 from celery import Celery
 from kombu.serialization import register
 
@@ -22,9 +22,18 @@ app.conf.accept_content = ["grla_json"]
 app.conf.task_serializer = "grla_json"
 app.conf.result_serializer = "grla_json"
 
+logger: logging.Logger = logging.getLogger("tasks")
+
 
 @app.task
-def process_possible_repo(repo: PossibleRepo) -> Result:
+def process_possible_repo(repo: PossibleRepo) -> Optional[Result]:
     """Process the given possible repo."""
-    slave = Slave(repo)
-    return slave.run()
+    try:
+        slave = Slave(repo)
+        result = slave.run()
+        if result is None:
+            logger.error("Slave returned None result.")
+        return result
+    except BaseException:
+        logger.exception("Caught exception in task. Returning None")
+        return None

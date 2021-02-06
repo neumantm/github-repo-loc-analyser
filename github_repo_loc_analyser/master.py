@@ -71,6 +71,8 @@ class Master:
         """Process the result of a process possible repo task"""
         logger.debug("Got some result.")
         analysis_result: Result = result.get()
+        if analysis_result is None:
+            return  # Error occurred. Don't save anything
         repo = analysis_result.get_repo()
         logger.info("Got result for {}".format(repo.get_name()))
         filepath = self.get_filepath_for_repo(repo)

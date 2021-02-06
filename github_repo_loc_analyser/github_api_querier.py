@@ -160,4 +160,6 @@ class ApiQuerier:
         if not resp.ok:
             logger.error("Result not ok ({}): \n{}".format(resp.status_code, resp.text))
         data = resp.json()
-        return data[0]["sha"]
+        sha = data[0]["sha"]
+        logger.debug("Commit: {}".format(sha))
+        return sha
