@@ -19,12 +19,13 @@ class Serializable:
 class Repo(Serializable):
     """The basic representation of a repository."""
 
-    def __init__(self, name: str, language: str, old_repo: bool):
+    def __init__(self, name: str, language: str, old_repo: bool, remote_url: str):
         """Init."""
         super().__init__()
         self._name = name
         self._language = language
         self._old_repo = old_repo
+        self._remote_url = remote_url
 
     def get_name(self) -> str:
         """Return the full name of the repo."""
@@ -38,26 +39,31 @@ class Repo(Serializable):
         """Return whether this repo was chosen as an old repo (a repo in the older of the two timeperiods)."""
         return self._old_repo
 
+    def get_remote_url(self) -> str:
+        """Return the remote url (clone url) of the repo."""
+        return self._remote_url
+
     def serialize(self) -> Dict:
         """See overridden."""
         data = super().serialize()
         data["name"] = self._name
         data["language"] = self._language
         data["old_repo"] = self._old_repo
+        data["remote_url"] = self._remote_url
         return data
 
     @classmethod
     def deserialize(cls, data: Dict):
         """Return a new object from the given data."""
-        return Repo(data["name"], data["language"], data["old_repo"])
+        return Repo(data["name"], data["language"], data["old_repo"], data["remote_url"])
 
 
 class PossibleRepo(Repo):
     """The representation of a repo which might be used."""
 
-    def __init__(self, name: str, language: str, old_repo: bool, commits_url: str):
+    def __init__(self, name: str, language: str, old_repo: bool, remote_url: str, commits_url: str):
         """Init."""
-        super().__init__(name, language, old_repo)
+        super().__init__(name, language, old_repo, remote_url)
         self._commits_url = commits_url
 
     def get_commits_url(self) -> str:
@@ -73,18 +79,14 @@ class PossibleRepo(Repo):
     @classmethod
     def deserialize(cls, data: Dict):
         """Return a new object from the given data."""
-        return PossibleRepo(data["name"], data["language"], data["old_repo"], data["commits_url"])
+        return PossibleRepo(data["name"], data["language"], data["old_repo"], data["remote_url"], data["commits_url"])
 
 
 class AnalysisRepo(Repo):
     def __init__(self, name: str, language: str, old_repo: bool, remote_url: str, commit: str):
         """Init"""
-        super().__init__(name, language, old_repo)
-        self._remote_url = remote_url
+        super().__init__(name, language, old_repo, remote_url)
         self._commit = commit
-
-    def get_remote_url(self) -> str:
-        return self._remote_url
 
     def get_commit(self) -> str:
         return self._commit
@@ -92,7 +94,6 @@ class AnalysisRepo(Repo):
     def serialize(self) -> Dict:
         """See overridden."""
         data = super().serialize()
-        data["remote_url"] = self._remote_url
         data["commit"] = self._commit
         return data
 

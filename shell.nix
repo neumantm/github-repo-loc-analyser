@@ -9,6 +9,7 @@ in pkgs.mkShell {
   buildInputs = [
     pkgs.poetry
     poetryEnv
+    pkgs.cloc
   ];
 
 }
