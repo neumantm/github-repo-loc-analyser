@@ -67,10 +67,11 @@ class ApiQuerier:
             current_time = ceil(time())
             time_for_rl_reset = int(r.headers['X-RateLimit-Reset'])
             to_sleep = time_for_rl_reset - current_time
-            to_sleep = max(0, to_sleep)
+            to_sleep = max(3, to_sleep)
             retries += 1
             logger.warn("Rate limit exeeded. Waiting {} seconds.".format(to_sleep))
             sleep(to_sleep)
+        raise ValueError("Exeeded retry limit")
 
     def _construct_get_repos_request(self, language: str, old_repo: bool) -> requests.Request:
         params = "q=language:" + language + "+"

@@ -41,7 +41,7 @@ class Master:
 
     def get_filepath_for_repo(self, repo: Repo):
         """Get the filepath for the data for the given repo."""
-        filename = sanitize_filename(repo.get_name()) + ".json"
+        filename = sanitize_filename(repo.get_name(), repo.get_language()) + ".json"
         return path.join(self._results_dir, filename)
 
     def start(self):
