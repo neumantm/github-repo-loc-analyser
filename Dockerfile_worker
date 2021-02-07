@@ -26,4 +26,4 @@ COPY ./github_repo_loc_analyser /app/github_repo_loc_analyser
 
 COPY ./.docker/docker-default-logging.conf /app
 
-CMD $HOME/.poetry/bin/poetry run grla
+CMD celery -A github_repo_loc_analyser.tasks worker -P solo -l INFO
