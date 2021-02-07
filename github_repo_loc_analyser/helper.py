@@ -1,7 +1,7 @@
 """Module with some helper methods and classes."""
 
 from json import JSONEncoder, JSONDecoder
-from os import unlink, path, fdopen, fsync, rename
+from os import unlink, path, fdopen, fsync, rename, makedirs
 from re import sub
 from tempfile import mkstemp
 from typing import Callable, TextIO, Type, Any
@@ -70,6 +70,9 @@ def atmoic_write_file(filepath: str, writer: Callable[[TextIO], None], text_mode
     text_mode is passed to the method opening the file.
     Raises ValuerError when anyhing goes wrong.
     """
+    tmp_dir = CONFIG["main"]["data_dir"] + "/tmp"
+    if not path.exists(tmp_dir):
+        makedirs(tmp_dir)
     tmpfile = None
     try:
         file_basename = path.basename(filepath)
@@ -78,7 +81,7 @@ def atmoic_write_file(filepath: str, writer: Callable[[TextIO], None], text_mode
         file_basename_ending = file_basename_parts[-1]
         tmpfile_fd, tmpfile = mkstemp(suffix="." + file_basename_ending,
                                       prefix=file_basename_prefix,
-                                      dir=CONFIG["main"]["tmp_dir"],
+                                      dir=tmp_dir,
                                       text=text_mode)
         with fdopen(tmpfile_fd, 'w') as f:
             writer(f)

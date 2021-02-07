@@ -1,0 +1,36 @@
+version: "3.3"
+
+networks:
+  grla:
+    external: false
+
+services:
+  rabbitmq:
+    image: rabbitmq
+    networks:
+      - grla
+  master:
+    image: neumantm/grla
+    environment:
+      - GRLA_CONFIG=/config/grla.conf
+    volumes:
+      - /path/to/config:/config:ro
+      - /path/to/data:/data:rw
+    networks:
+      - grla
+  slave1:
+    image: neumantm/grla-worker
+    environment:
+      - GRLA_CONFIG=/config/grla.conf
+    volumes:
+      - /path/to/config:/config:ro
+    networks:
+      - grla
+  slave2:
+    image: neumantm/grla-worker
+    environment:
+      - GRLA_CONFIG=/config/grla.conf
+    volumes:
+      - /path/to/config:/config:ro
+    networks:
+      - grla

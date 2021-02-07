@@ -12,6 +12,7 @@ _logging_config_path = None
 def configure_logging():
     global _logging_config_path
     if _logging_config_path is not None:
+        print(_logging_config_path)
         logging.config.fileConfig(_logging_config_path, disable_existing_loggers=False)
 
 def setup():
@@ -32,7 +33,11 @@ def setup():
         print("Missing config main section.")
         exit(1)
     if "logging_conf" in CONFIG["main"]:
-        _logging_config_path = path.join(dir_path, CONFIG["main"]["logging_conf"])
+        conf_path = CONFIG["main"]["logging_conf"]
+        if path.isabs(CONFIG["main"]["logging_conf"]):
+            _logging_config_path = conf_path
+        else:
+            _logging_config_path = path.join(dir_path, conf_path)
         configure_logging()
 
     logger = logging.getLogger("main")
