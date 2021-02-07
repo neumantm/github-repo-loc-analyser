@@ -21,7 +21,7 @@ minimum_code_lines = 100
 github_auth = token 00000000000000000000000000000000
 
 [repo_filters]
-languages = java,python
+languages = Java,Python
 size = 10..100000
 stars = >20
 old_repo_created = <2012-01-01

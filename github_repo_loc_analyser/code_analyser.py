@@ -13,8 +13,16 @@ from github_repo_loc_analyser.data_structure import AnalysisRepo, Result
 logger: logging.Logger = logging.getLogger("codeana")
 
 github_to_cloc_lookup_table = {
-    "java": "Java",
-    "python": "Python"
+    "Java": "Java",
+    "Python": "Python",
+    "cpp": "C++",
+    "Go": "Go",
+    "Lua": "Lua",
+    "Perl": "Perl",
+    "PHP": "PHP",
+    "Ruby": "Ruby",
+    "JavaScript": "JavaScript",
+    "Objective-C": "Objective-C"
 }
 
 
