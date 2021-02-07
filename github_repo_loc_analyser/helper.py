@@ -95,9 +95,10 @@ def atmoic_write_file(filepath: str, writer: Callable[[TextIO], None], text_mode
             unlink(tmpfile)
 
 
-def sanitize_filename(name: str) -> str:
+def sanitize_filename(name: str, lang: str) -> str:
     """Sanitize a filename"""
-    value = name.replace("/", "__")
+    value = lang + "_" + name
+    value = value.replace("/", "__")
     value = normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
     value = sub(r'[^\w\s-]', '', value.lower())
     return sub(r'[-\s]+', '-', value)
