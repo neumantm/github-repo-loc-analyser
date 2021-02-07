@@ -134,7 +134,7 @@ class ApiQuerier:
                     index = randint(0, last_i)
                     datum = data["items"][index]
                     name = datum["full_name"]
-                    sanitized_filename = sanitize_filename(name)
+                    sanitized_filename = sanitize_filename(name, language)
                 used_indices.append(index)
                 results_sanitzed_filenames.append(sanitized_filename)
                 logger.debug("Picked index: {}".format(index))
