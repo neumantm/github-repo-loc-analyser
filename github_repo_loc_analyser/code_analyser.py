@@ -13,16 +13,16 @@ from github_repo_loc_analyser.data_structure import AnalysisRepo, Result
 logger: logging.Logger = logging.getLogger("codeana")
 
 github_to_cloc_lookup_table = {
-    "Java": "Java",
-    "Python": "Python",
+    "java": "Java",
+    "python": "Python",
     "cpp": "C++",
-    "Go": "Go",
-    "Lua": "Lua",
-    "Perl": "Perl",
-    "PHP": "PHP",
-    "Ruby": "Ruby",
-    "JavaScript": "JavaScript",
-    "Objective-C": "Objective-C"
+    "go": "Go",
+    "lua": "Lua",
+    "perl": "Perl",
+    "php": "PHP",
+    "ruby": "Ruby",
+    "javascript": "JavaScript",
+    "objective-c": "Objective-C"
 }
 
 
@@ -61,7 +61,7 @@ class CodeAnalyzer:
 
         logger.info('Obtaining cloc report for repository ' + self.repo.get_name() + '...')
 
-        gh_lang = self.repo.get_language()
+        gh_lang = self.repo.get_language().lower()
         if gh_lang not in github_to_cloc_lookup_table:
             raise ValueError("Unsupported language: {}".format(gh_lang))
         lang = github_to_cloc_lookup_table[gh_lang]
