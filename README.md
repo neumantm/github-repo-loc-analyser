@@ -19,6 +19,8 @@ old_repo_date = 2012-06-01
 new_repo_date = 2020-06-01
 minimum_code_lines = 100
 github_auth = token 00000000000000000000000000000000
+min_tasks_in_queue = 5
+max_tasks_in_queue = 20
 
 [repo_filters]
 languages = Java,Python
