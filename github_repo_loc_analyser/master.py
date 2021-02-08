@@ -3,8 +3,10 @@ import logging
 from json import dump, load
 from os import path, mkdir
 from typing import List
+from time import sleep
 
 from celery.result import AsyncResult
+from celery.exceptions import TimeoutError
 
 from . import CONFIG
 from .data_structure import PossibleRepo, Result, Repo
@@ -27,6 +29,8 @@ class Master:
         data_dir = CONFIG["main"]["data_dir"]
         self._repos_file = path.join(data_dir, REPOS_FILENAME)
         self._results_dir = path.join(data_dir, RESULTS_DIRNAME)
+        self._min_tasks_in_queue = CONFIG["main"].getint("min_tasks_in_queue")
+        self._max_tasks_in_queue = CONFIG["main"].getint("max_tasks_in_queue")
         if not path.exists(self._results_dir):
             mkdir(self._results_dir)
         self._waiting_for_results_for = []
@@ -61,15 +65,29 @@ class Master:
 
             logger.info("Delegating task for repo {}".format(repo.get_name()))
             r = process_possible_repo.delay(repo)
-            r.then(self.process_result)
             self._waiting_for_results_for.append(r)
+            if len(self._waiting_for_results_for) > self._min_tasks_in_queue:
+                oldest_result = self._waiting_for_results_for[0]
+                try:
+                    self.process_result(oldest_result)
+                except TimeoutError:
+                    pass
+            index = 0
+            while len(self._waiting_for_results_for) > self._max_tasks_in_queue:
+                result_to_get = self._waiting_for_results_for[index]
+                try:
+                    self.process_result(result_to_get)
+                except TimeoutError:
+                    pass
+                index = (index + 1) % len(self._waiting_for_results_for)
 
         for item in self._waiting_for_results_for:
-            item.get()
+            self.process_result(item)
 
     def process_result(self, result: AsyncResult):
         """Process the result of a process possible repo task."""
-        analysis_result: Result = result.get()
+        analysis_result: Result = result.get(timeout=1)
+        self._waiting_for_results_for.remove(result)
         if analysis_result is None:
             logger.warn("Got None result. Ignoring")
             return  # Error occurred. Don't save anything
